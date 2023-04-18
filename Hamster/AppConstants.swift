@@ -3,10 +3,10 @@ import UIKit
 
 enum AppConstants {
   // AppGroup ID
-  static let appGroupName = "group.dev.fuxiao.app.Hamster"
+  static let appGroupName = "group.vitta.fuxiao.app.Hamster"
   
   // keyboard Bundle ID
-  static let keyboardBundleID = "dev.fuxiao.app.Hamster.HamsterKeyboard"
+  static let keyboardBundleID = "vitta.fuxiao.app.Hamster.HamsterKeyboard"
   
   // TODO: 系统添加键盘URL
   static let addKeyboardPath = "app-settings:root=General&path=Keyboard/KEYBOARDS"
@@ -17,7 +17,7 @@ enum AppConstants {
   static let rimeUserPathName = "Rime"
 
   // 注意: 此值需要与info.plist中的参数保持一致
-  static let appURL = "hamster://dev.fuxiao.app.hamster"
+  static let appURL = "hamster://vitta.fuxiao.app.hamster"
 
   // 应用日志文件URL
   static let logFileURL = FileManager.default

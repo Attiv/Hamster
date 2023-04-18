@@ -8,7 +8,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 			<key>CFBundleURLName</key>
-			<string>dev.fuxiao.app.hamster</string>
+			<string>vitta.fuxiao.app.hamster</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>hamster</string>
