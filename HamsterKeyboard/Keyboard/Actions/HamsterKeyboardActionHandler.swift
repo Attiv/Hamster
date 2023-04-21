@@ -6,6 +6,7 @@ class HamsterKeyboardActionHandler: StandardKeyboardActionHandler {
 
   // 其他按键滑动处理
   public let characterDragActionHandler: SlideGestureHandler
+  public let spaceDragActionHandler: SpaceDragHandler
   public let appSettings: HamsterAppSettings
   public let rimeEngine: RimeEngine
 
@@ -16,12 +17,12 @@ class HamsterKeyboardActionHandler: StandardKeyboardActionHandler {
     let actionConfig: [String: String] = ivc.appSettings.keyboardUpAndDownSlideSymbol
     return { [weak ivc] action, offset in
       var tempChar = ""
-        if case .character(let char) = action {
-            tempChar = char
-        } else if .space == action {
-            tempChar = "space"
-        }
-      if "" != tempChar {
+      if case let .character(char) = action {
+        tempChar = char
+      } else if action == .space {
+        tempChar = "space"
+      }
+      if tempChar != "" {
         let actionKey = offset < 0 ?
           tempChar.lowercased() + KeyboardConstant.Character.SlideDown :
           tempChar.lowercased() + KeyboardConstant.Character.SlideUp
@@ -32,39 +33,20 @@ class HamsterKeyboardActionHandler: StandardKeyboardActionHandler {
 
         guard let ivc = ivc else { return }
 
-        // TODO: 以#开头为功能
-        if value.hasPrefix("#"), value.count > 1 {
-          let function = SlideFunction(rawValue: value)
-          switch function {
-          case .SimplifiedTraditionalSwitch:
-            ivc.switchTraditionalSimplifiedChinese()
-          case .ChineseEnglishSwitch:
-            ivc.switchEnglishChinese()
-          case .SelectSecond:
-            _ = ivc.secondCandidateTextOnScreen()
-          case .BeginOfSentence:
-            ivc.moveBeginOfSentence()
-          case .EndOfSentence:
-            ivc.moveEndOfSentence()
-          default:
-            break
-          }
+        // #功能指令处理
+        if ivc.functionalInstructionsHandled(value) {
           return
         }
 
-        // TODO: 字符处理
+        // 字符处理
+        ivc.insertText(value)
+//        ivc.textDocumentProxy.insertText(value)
         if value.count > 1 {
-          ivc.textDocumentProxy.insertText(value)
-          if value.count > 1 {
-            ivc.adjustTextPosition(byCharacterOffset: -1)
-          }
-        } else {
-          ivc.insertText(value)
+          ivc.adjustTextPosition(byCharacterOffset: -1)
         }
       }
     }
   }
-    
 
   public init(
     inputViewController ivc: HamsterKeyboardViewController,
@@ -72,10 +54,15 @@ class HamsterKeyboardActionHandler: StandardKeyboardActionHandler {
     keyboardFeedbackHandler: KeyboardFeedbackHandler
   ) {
     weak var keyboardController = ivc
-    self.hamsterKeyboardController = keyboardController
-    self.appSettings = ivc.appSettings
-    self.rimeEngine = ivc.rimeEngine
-    self.characterDragActionHandler = CharacterDragHandler(
+    hamsterKeyboardController = keyboardController
+    appSettings = ivc.appSettings
+    rimeEngine = ivc.rimeEngine
+    characterDragActionHandler = CharacterDragHandler(
+      keyboardContext: keyboardContext,
+      feedbackHandler: keyboardFeedbackHandler,
+      action: characterDragAction(ivc)
+    )
+    spaceDragActionHandler = SpaceDragHandler(
       keyboardContext: keyboardContext,
       feedbackHandler: keyboardFeedbackHandler,
       action: characterDragAction(ivc)
@@ -114,15 +101,14 @@ class HamsterKeyboardActionHandler: StandardKeyboardActionHandler {
   }
 
   override func handle(_ gesture: KeyboardGesture, on action: KeyboardAction, replaced: Bool) {
-    if !replaced, tryHandleReplacementAction(before: gesture, on: action) { return }
+    if !replaced && tryHandleReplacementAction(before: gesture, on: action) { return }
     triggerFeedback(for: gesture, on: action)
     guard let gestureAction = self.action(for: gesture, on: action) else { return }
+    // TODO: 这里前后可以添加中英自动加入空格等特性
     gestureAction(keyboardController)
-    // TODO: 这里可以添加中英自动加入空格等特性
-    // tryReinsertAutocompleteRemovedSpace(after: gesture, on: action)
-    // tryEndSentence(after: gesture, on: action)
     // 这里改变键盘类型: 比如双击, 不能在KeyboardAction+Action那里改
     tryChangeKeyboardType(after: gesture, on: action)
+    keyboardController?.performTextContextSync()
   }
 
   /**
@@ -145,17 +131,16 @@ class HamsterKeyboardActionHandler: StandardKeyboardActionHandler {
   ) {
     switch action {
     case .space:
-      if appSettings.slideBySpaceButton {
-        if appSettings.enableInputEmbeddedMode && !rimeEngine.userInputKey.isEmpty {
-          return
+      spaceDragActionHandler.setHorizontalDraggingEventAndAllowAction(horizontalDragging: { [self] in
+        if appSettings.slideBySpaceButton {
+          if appSettings.enableInputEmbeddedMode, !rimeEngine.userInputKey.isEmpty {
+            return
+          }
+          triggerFeedback(for: .longPress, on: action)
+          spaceDragGestureHandler.handleDragGesture(from: startLocation, to: currentLocation)
         }
-        triggerFeedback(for: .longPress, on: action)
-        spaceDragGestureHandler.handleDragGesture(from: startLocation, to: currentLocation)
-      }
-      if appSettings.enableKeyboardUpAndDownSlideSymbol {
-        characterDragActionHandler.handleDragGesture(action: action, from: startLocation, to: currentLocation)
-      }
-      break;
+      }, allowAction: appSettings.enableKeyboardUpAndDownSlideSymbol)
+      spaceDragActionHandler.handleDragGesture(action: action, from: startLocation, to: currentLocation)
     case .character:
       if appSettings.enableKeyboardUpAndDownSlideSymbol {
         characterDragActionHandler.handleDragGesture(action: action, from: startLocation, to: currentLocation)
