@@ -65,9 +65,9 @@ class SpaceDragHandler: SlideGestureHandler {
     let dragX = abs(startLocation.x - currentLocation.x)
     let dragOffset = Int(dragDelta / CGFloat(sensitivity.points))
 
+    // 优先判断是不是左右滑动
     if CGFloat(dragX) < CGFloat(SpaceHorizontalDragSensitivity.points) {
       // 视为 上下滑动
-
       // 重复触发
       guard dragOffset != currentDragOffset else { return }
       if !allowAction { return } else {

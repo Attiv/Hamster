@@ -100,7 +100,7 @@ class HamsterKeyboardActionHandler: StandardKeyboardActionHandler {
     handle(gesture, on: action, replaced: false)
   }
 
-  override func handle(_ gesture: KeyboardGesture, on action: KeyboardAction, replaced: Bool) {
+  override func handle(_ gesture: KeyboardGesture, on action: KeyboardAction, replaced _: Bool) {
     // 反馈触发
     triggerFeedback(for: gesture, on: action)
     guard let gestureAction = self.action(for: gesture, on: action) else { return }
@@ -131,16 +131,15 @@ class HamsterKeyboardActionHandler: StandardKeyboardActionHandler {
   ) {
     switch action {
     case .space:
-      spaceDragActionHandler.setHorizontalDraggingEventAndAllowAction(horizontalDragging: { [self] in
-        if appSettings.slideBySpaceButton {
+      if appSettings.slideBySpaceButton {
+        spaceDragActionHandler.setHorizontalDraggingEventAndAllowAction(horizontalDragging: { [self] in
           if appSettings.enableInputEmbeddedMode, !rimeEngine.userInputKey.isEmpty {
             return
           }
-          triggerFeedback(for: .longPress, on: action)
           spaceDragGestureHandler.handleDragGesture(from: startLocation, to: currentLocation)
-        }
-      }, allowAction: appSettings.enableKeyboardUpAndDownSlideSymbol)
-      spaceDragActionHandler.handleDragGesture(action: action, from: startLocation, to: currentLocation)
+        }, allowAction: appSettings.enableKeyboardUpAndDownSlideSymbol)
+        spaceDragActionHandler.handleDragGesture(action: action, from: startLocation, to: currentLocation)
+      }
     case .character:
       if appSettings.enableKeyboardUpAndDownSlideSymbol {
         characterDragActionHandler.handleDragGesture(action: action, from: startLocation, to: currentLocation)
