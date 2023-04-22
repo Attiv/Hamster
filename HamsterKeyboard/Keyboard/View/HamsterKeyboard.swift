@@ -8,6 +8,7 @@
 import KeyboardKit
 import SwiftUI
 
+/// Hamster键盘
 @available(iOS 14, *)
 struct HamsterKeyboard: View {
   weak var ivc: HamsterKeyboardViewController?
@@ -54,11 +55,17 @@ struct HamsterKeyboard: View {
 
     self.keyboardLayout = ivc.keyboardLayoutProvider.keyboardLayout(for: ivc.keyboardContext)
 
-    // 键盘总高度
-    let height = Double(keyboardLayout.itemRows.count) *
-      keyboardLayout.idealItemHeight
-      + keyboardLayout.idealItemInsets.top + keyboardLayout.idealItemInsets.bottom + 40
-    Logger.shared.log.debug("keyboard height \(height)")
+    // 计算键盘总高度
+    let height = Double(keyboardLayout.itemRows.count)
+      * keyboardLayout.idealItemHeight
+      + keyboardLayout.idealItemInsets.top
+      + keyboardLayout.idealItemInsets.bottom
+      + (ivc.appSettings.enableInputEmbeddedMode ? 40 : 50)
+
+    Logger.shared.log.debug("keyboard idealItemHeight \(keyboardLayout.idealItemHeight)")
+    Logger.shared.log.debug("keyboard idealItemInsets.top \(keyboardLayout.idealItemInsets.top)")
+    Logger.shared.log.debug("keyboard idealItemInsets.bottom \(keyboardLayout.idealItemInsets.bottom)")
+    Logger.shared.log.debug("keyboard total height \(height)")
 
     self._hamsterKeyboardSize = State(initialValue: CGSize(width: 0, height: height))
   }
@@ -73,10 +80,7 @@ struct HamsterKeyboard: View {
 
   // 全键盘展示候选字
   var expandCandidatesView: some View {
-    ExpandCandidatesView(
-      style: style,
-      hamsterKeyboardSize: $hamsterKeyboardSize
-    ) { [weak ivc] item in
+    ExpandCandidatesView(style: style) { [weak ivc] item in
       guard let ivc = ivc else { return }
       ivc.selectCandidateIndex(index: item.index)
       appSettings.keyboardStatus = .normal
@@ -99,16 +103,20 @@ struct HamsterKeyboard: View {
         AlphabetKeyboard(
           keyboardInputViewController: ivc ?? NextKeyboardController.shared as! HamsterKeyboardViewController
         )
+        .frame(height: hamsterKeyboardSize.height)
       }
 
       // 全区域展示候选键盘
       if appSettings.keyboardStatus == .keyboardAreaToExpandCandidates {
         expandCandidatesView
+          .frame(height: hamsterKeyboardSize.height)
       }
 
       // 输入方案切换视图
       if appSettings.keyboardStatus == .switchInputSchema {
         switchInputSchemaView
+          .foregroundColor(hamsterColor.candidateTextColor ?? Color.standardButtonForeground(for: keyboardContext))
+          .frame(height: hamsterKeyboardSize.height)
       }
     }
   }
@@ -161,7 +169,6 @@ struct SelectInputSchemaView: View {
         }
       )
       .frame(height: hamsterKeyboardSize.height)
-      .background(backgroundColor)
 
       // 收起按钮
       CandidateBarArrowButton(hamsterColor: hamsterColor, action: {
@@ -170,5 +177,6 @@ struct SelectInputSchemaView: View {
     }
     .frame(minWidth: 0, maxWidth: .infinity)
     .frame(height: hamsterKeyboardSize.height)
+    .background(backgroundColor)
   }
 }
