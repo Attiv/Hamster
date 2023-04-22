@@ -263,22 +263,25 @@ extension HamsterKeyboardViewController {
     self.rimeEngine.asciiMode.toggle()
   }
   
-  /// 次选上屏
-  func secondCandidateTextOnScreen() -> Bool {
+  /// 多选上屏
+  /// - Parameter num: 次选候选字的序号, 默认为2， 三选为3
+  func secondCandidateTextOnScreen(num: Int = 2) -> Bool {
+    if (num < 1) { return false}
     let status = self.rimeEngine.status()
     if status.isComposing {
       let candidates = self.rimeEngine.suggestions
       if candidates.isEmpty {
         return false
       }
-      if candidates.count >= 2 {
-        self.textDocumentProxy.insertText(candidates[1].text)
+      if candidates.count >= num {
+        self.textDocumentProxy.insertText(candidates[num - 1].text)
         self.rimeEngine.reset()
         return true
       }
     }
     return false
   }
+  
   
   /// 首选候选字上屏
   func candidateTextOnScreen() -> Bool {
@@ -456,6 +459,8 @@ extension HamsterKeyboardViewController {
       self.switchEnglishChinese()
     case .selectSecond:
       _ = self.secondCandidateTextOnScreen()
+    case .selectThird:
+      _ = secondCandidateTextOnScreen(num: 3)
     case .beginOfSentence:
       self.moveBeginOfSentence()
     case .endOfSentence:

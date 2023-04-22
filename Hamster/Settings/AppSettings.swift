@@ -11,6 +11,7 @@ enum FunctionalInstructions: String, CaseIterable, Equatable, Identifiable {
   case beginOfSentence = "#行首"
   case endOfSentence = "#行尾"
   case selectSecond = "#次选上屏"
+  case selectThird = "#三选上屏"
   case selectInputSchema = "#方案切换"
   case selectColorSchema = "#配色切换"
   case none = "无"
@@ -27,6 +28,8 @@ enum FunctionalInstructions: String, CaseIterable, Equatable, Identifiable {
       return "⇥"
     case .selectSecond:
       return "次"
+    case .selectThird:
+      return "三"
     default:
       return ""
     }
