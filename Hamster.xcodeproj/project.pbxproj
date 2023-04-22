@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AE6A950729F18FA700F3D4D3 /* SpaceDragHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE6A950629F18FA700F3D4D3 /* SpaceDragHandler.swift */; };
+		AE43FE0929F37E17004210EA /* SpaceDragHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE43FE0829F37E17004210EA /* SpaceDragHandler.swift */; };
 		C0010B0029B8ED8000CE4869 /* ColorSchemaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0010AFF29B8ED8000CE4869 /* ColorSchemaView.swift */; };
 		C0010B0229B9040B00CE4869 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0010B0129B9040B00CE4869 /* AboutView.swift */; };
 		C00699FB29CE9A2300087879 /* AppSettings+Permission.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00699FA29CE9A2300087879 /* AppSettings+Permission.swift */; };
@@ -203,7 +203,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		AE6A950629F18FA700F3D4D3 /* SpaceDragHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpaceDragHandler.swift; sourceTree = "<group>"; };
+		AE43FE0829F37E17004210EA /* SpaceDragHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpaceDragHandler.swift; sourceTree = "<group>"; };
 		C000CA9D296EA72600EC5323 /* KeyboardInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardInputViewController.swift; sourceTree = "<group>"; };
 		C0010AFF29B8ED8000CE4869 /* ColorSchemaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorSchemaView.swift; sourceTree = "<group>"; };
 		C0010B0129B9040B00CE4869 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
@@ -580,10 +580,10 @@
 		C04FA8CE299A65AC00F8CC32 /* Gestures */ = {
 			isa = PBXGroup;
 			children = (
+				AE43FE0829F37E17004210EA /* SpaceDragHandler.swift */,
 				C04FA8D0299A65AC00F8CC32 /* SlideGestureHandler.swift */,
 				C04FA8D1299A65AC00F8CC32 /* CharacterSlideGestureHandler.swift */,
 				C0532D1D29C4AA7D001A8BE6 /* CharacterDragHandler.swift */,
-				AE6A950629F18FA700F3D4D3 /* SpaceDragHandler.swift */,
 			);
 			path = Gestures;
 			sourceTree = "<group>";
@@ -1010,7 +1010,6 @@
 				C0C9F03029CF4355004B2C33 /* AppSettings+Permission.swift in Sources */,
 				C0DAFD2629DA9DD000762D2B /* HamsterInputSetProvider.swift in Sources */,
 				C0C9F03129CF4355004B2C33 /* AppSettings+Bundle.swift in Sources */,
-				AE6A950729F18FA700F3D4D3 /* SpaceDragHandler.swift in Sources */,
 				C0C9F03229CF4355004B2C33 /* RimeEngine.swift in Sources */,
 				C0C9F03329CF4355004B2C33 /* RimeEngine+Color.swift in Sources */,
 				C0C9F03429CF4355004B2C33 /* RimeEngine+File.swift in Sources */,
@@ -1021,6 +1020,7 @@
 				C0C9F02C29CF4326004B2C33 /* KeyboardInputViewController.swift in Sources */,
 				C0C9F01029CF4316004B2C33 /* KeyboardViewController.swift in Sources */,
 				C0C9F01129CF4316004B2C33 /* KeyboardConstants.swift in Sources */,
+				AE43FE0929F37E17004210EA /* SpaceDragHandler.swift in Sources */,
 				C0C9F01229CF4316004B2C33 /* HamsterKeyboardActionHandler.swift in Sources */,
 				C0C9F01329CF4316004B2C33 /* KeyboardAction+Buttons.swift in Sources */,
 				C0C9F01429CF4316004B2C33 /* KeyboardAction+Actions.swift in Sources */,
@@ -1237,12 +1237,12 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"HamsterApp/Preview Content\"";
-				DEVELOPMENT_TEAM = AVFY626F96;
+				DEVELOPMENT_TEAM = M4N6995A28;
 				ENABLE_BITCODE = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HamsterApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = HamsterApp;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(PRODUCT_NAME)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -1254,7 +1254,7 @@
 				);
 				MARKETING_VERSION = 1.4.0;
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = vitta.fuxiao.app.Hamster;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.fuxiao.app.Hamster;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -1275,12 +1275,12 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"HamsterApp/Preview Content\"";
-				DEVELOPMENT_TEAM = AVFY626F96;
+				DEVELOPMENT_TEAM = M4N6995A28;
 				ENABLE_BITCODE = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HamsterApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = HamsterApp;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(PRODUCT_NAME)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -1292,7 +1292,7 @@
 				);
 				MARKETING_VERSION = 1.4.0;
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = vitta.fuxiao.app.Hamster;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.fuxiao.app.Hamster;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -1310,7 +1310,7 @@
 				CODE_SIGN_ENTITLEMENTS = HamsterKeyboard/HamsterKeyboard.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = AVFY626F96;
+				DEVELOPMENT_TEAM = M4N6995A28;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HamsterKeyboard/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = HamsterKeyboard;
@@ -1323,7 +1323,7 @@
 				);
 				MARKETING_VERSION = 1.4.0;
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = vitta.fuxiao.app.Hamster.HamsterKeyboard;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.fuxiao.app.Hamster.HamsterKeyboard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1340,7 +1340,7 @@
 				CODE_SIGN_ENTITLEMENTS = HamsterKeyboard/HamsterKeyboard.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = AVFY626F96;
+				DEVELOPMENT_TEAM = M4N6995A28;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HamsterKeyboard/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = HamsterKeyboard;
@@ -1353,7 +1353,7 @@
 				);
 				MARKETING_VERSION = 1.4.0;
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = vitta.fuxiao.app.Hamster.HamsterKeyboard;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.fuxiao.app.Hamster.HamsterKeyboard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1369,11 +1369,11 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = AVFY626F96;
+				DEVELOPMENT_TEAM = M4N6995A28;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = vitta.fuxiao.app.HamsterAppTests;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.fuxiao.app.HamsterAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -1389,11 +1389,11 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = AVFY626F96;
+				DEVELOPMENT_TEAM = M4N6995A28;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = vitta.fuxiao.app.HamsterAppTests;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.fuxiao.app.HamsterAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
