@@ -240,7 +240,7 @@ open class HamsterKeyboardViewController: KeyboardInputViewController {
   }
 
   override open func deleteBackward() {
-    self.inputRimeKeycode(keycode: XK_BackSpace)
+    _ = self.inputRimeKeycode(keycode: XK_BackSpace)
   }
 
   override open func setKeyboardType(_ type: KeyboardType) {
@@ -490,8 +490,23 @@ extension HamsterKeyboardViewController {
       self.moveEndOfSentence()
     case .selectInputSchema:
       self.appSettings.keyboardStatus = .switchInputSchema
+    case .newLine:
+      self.textDocumentProxy.insertText("\r\n")
+    case .deleteInputKey:
+      self.rimeEngine.reset()
+    case .selectColorSchema:
+      // TODO: 颜色方案切换
+      break
+    case .switchLastInputSchema:
+      let currentInputSchema = (self.rimeEngine.currentSchema()?.schemaId) ?? ""
+      if !self.appSettings.lastUseRimeInputSchema.isEmpty {
+        let handled = self.rimeEngine.setSchema(self.appSettings.lastUseRimeInputSchema)
+        Logger.shared.log.debug("switch last use input schema \(self.appSettings.lastUseRimeInputSchema), handled = \(handled)")
+        self.appSettings.lastUseRimeInputSchema = currentInputSchema
+        self.rimeEngine.reset()
+      }
     default:
-      return false
+      break
     }
 
     return true

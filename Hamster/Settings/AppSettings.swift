@@ -14,6 +14,9 @@ enum FunctionalInstructions: String, CaseIterable, Equatable, Identifiable {
   case selectThird = "#三选上屏"
   case selectInputSchema = "#方案切换"
   case selectColorSchema = "#配色切换"
+  case newLine = "#换行"
+  case deleteInputKey = "#清屏"
+  case switchLastInputSchema = "#切换上个输入方案"
   case none = "无"
 
   var text: String {
@@ -112,6 +115,8 @@ private enum HamsterAppSettingKeys: String {
 
   // rime 输入方案
   case rimeInputSchema = "rime.inputSchema"
+  // 最近一次使用的输入方案
+  case lastUseRimeInputSchema = "rime.lastUseRimeInputSchema"
 
   // rime 颜色方案
   case rimeEnableColorSchema = "rime.enableColorSchema"
@@ -162,6 +167,7 @@ public class HamsterAppSettings: ObservableObject {
       HamsterAppSettingKeys.rimeCandidateTitleFontSize.rawValue: 20,
       HamsterAppSettingKeys.rimeCandidateCommentFontSize.rawValue: 14,
       HamsterAppSettingKeys.rimeInputSchema.rawValue: "",
+      HamsterAppSettingKeys.lastUseRimeInputSchema.rawValue: "",
       HamsterAppSettingKeys.rimeEnableColorSchema.rawValue: false,
       HamsterAppSettingKeys.rimeColorSchema.rawValue: "",
       HamsterAppSettingKeys.rimeNeedOverrideUserDataDirectory.rawValue: false,
@@ -192,6 +198,7 @@ public class HamsterAppSettings: ObservableObject {
     self.rimeCandidateTitleFontSize = UserDefaults.hamsterSettingsDefault.integer(forKey: HamsterAppSettingKeys.rimeCandidateTitleFontSize.rawValue)
     self.rimeCandidateCommentFontSize = UserDefaults.hamsterSettingsDefault.integer(forKey: HamsterAppSettingKeys.rimeCandidateCommentFontSize.rawValue)
     self.rimeInputSchema = UserDefaults.hamsterSettingsDefault.string(forKey: HamsterAppSettingKeys.rimeInputSchema.rawValue) ?? ""
+    self.lastUseRimeInputSchema = UserDefaults.hamsterSettingsDefault.string(forKey: HamsterAppSettingKeys.lastUseRimeInputSchema.rawValue) ?? ""
     self.enableRimeColorSchema = UserDefaults.hamsterSettingsDefault.bool(forKey: HamsterAppSettingKeys.rimeEnableColorSchema.rawValue)
     self.rimeColorSchema = UserDefaults.hamsterSettingsDefault.string(forKey: HamsterAppSettingKeys.rimeColorSchema.rawValue) ?? ""
     self.rimeNeedOverrideUserDataDirectory = UserDefaults.hamsterSettingsDefault.bool(forKey: HamsterAppSettingKeys.rimeNeedOverrideUserDataDirectory.rawValue)
@@ -344,6 +351,7 @@ public class HamsterAppSettings: ObservableObject {
     }
   }
 
+  // 最大候选字的数量
   @Published
   var rimeMaxCandidateSize: Int32 {
     didSet {
@@ -374,10 +382,25 @@ public class HamsterAppSettings: ObservableObject {
   // Rime: 输入方案
   @Published
   var rimeInputSchema: String {
+    willSet {
+      // 修改之前存储当前值
+      lastUseRimeInputSchema = rimeInputSchema
+    }
     didSet {
       Logger.shared.log.info(["AppSettings, rimeInputSchema": rimeInputSchema])
       UserDefaults.hamsterSettingsDefault.set(
         rimeInputSchema, forKey: HamsterAppSettingKeys.rimeInputSchema.rawValue)
+      UserDefaults.hamsterSettingsDefault.synchronize()
+    }
+  }
+
+  // 最近一次使用的rime输入方案
+  @Published
+  var lastUseRimeInputSchema: String {
+    didSet {
+      Logger.shared.log.info(["AppSettings, lastInputSchema": lastUseRimeInputSchema])
+      UserDefaults.hamsterSettingsDefault.set(
+        lastUseRimeInputSchema, forKey: HamsterAppSettingKeys.lastUseRimeInputSchema.rawValue)
       UserDefaults.hamsterSettingsDefault.synchronize()
     }
   }
@@ -473,7 +496,7 @@ public class HamsterAppSettings: ObservableObject {
     }
   }
 
-  // 键盘当前状态
+  // 键盘当前状态: 无需持久化
   @Published
   var keyboardStatus: HamsterKeyboardStatus = .normal
 

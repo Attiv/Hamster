@@ -4,7 +4,7 @@ import UIKit
 enum AppConstants {
   // AppGroup ID
   static let appGroupName = "group.vitta.fuxiao.app.Hamster"
-  
+  static let iCloudID = "iCloud.vitta.fuxiao.app.hamster"
   // keyboard Bundle ID
   static let keyboardBundleID = "vitta.fuxiao.app.Hamster.HamsterKeyboard"
   
