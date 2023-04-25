@@ -96,6 +96,7 @@ open class HamsterKeyboardViewController: KeyboardInputViewController {
   }
 
   override public func viewWillSetupKeyboard() {
+    super.viewWillSetupKeyboard()
     self.log.debug("viewWillSetupKeyboard() begin")
     let hamsterKeyboard = HamsterKeyboard(keyboardInputViewController: self)
       .environmentObject(self.rimeEngine)
@@ -104,6 +105,7 @@ open class HamsterKeyboardViewController: KeyboardInputViewController {
   }
 
   override public func viewDidDisappear(_ animated: Bool) {
+    super.viewDidDisappear(animated)
     self.log.debug("HamsterKeyboardViewController viewDidDisappear")
   }
 
@@ -162,16 +164,21 @@ open class HamsterKeyboardViewController: KeyboardInputViewController {
 
   private func setupRimeEngine() {
     do {
-      try RimeEngine.syncAppGroupSharedSupportDirectory(
-        override: self.appSettings.rimeNeedOverrideUserDataDirectory)
+//      TODO: AppGroup下SharedSupport目录共享
+//      try RimeEngine.syncAppGroupSharedSupportDirectory(
+//        override: self.appSettings.rimeNeedOverrideUserDataDirectory)
+      Logger.shared.log.debug("rime syncAppGroupUserDataDirectory: \(self.appSettings.rimeNeedOverrideUserDataDirectory)")
+
+      // 如果有写权限直接使用AppGroup下目录
       try RimeEngine.syncAppGroupUserDataDirectory(
         override: self.appSettings.rimeNeedOverrideUserDataDirectory)
     } catch {
       self.log.error("create rime directory error: \(error), \(error.localizedDescription)")
     }
 
+    // TODO: 使用AppGroup下的SharedSupport目录
     let traits = self.rimeEngine.createTraits(
-      sharedSupportDir: RimeEngine.sharedSupportDirectory.path,
+      sharedSupportDir: RimeEngine.appGroupSharedSupportDirectoryURL.path,
       userDataDir: RimeEngine.userDataDirectory.path
     )
 
@@ -184,7 +191,7 @@ open class HamsterKeyboardViewController: KeyboardInputViewController {
       self.rimeEngine.setupRime(traits)
     }
     self.rimeEngine.startRime(
-      traits, fullCheck: self.appSettings.rimeNeedOverrideUserDataDirectory
+      nil, fullCheck: false
     )
     if self.appSettings.rimeNeedOverrideUserDataDirectory {
       self.appSettings.rimeNeedOverrideUserDataDirectory = false
@@ -295,40 +302,21 @@ extension HamsterKeyboardViewController {
     //    _ = self.candidateTextOnScreen()
     self.rimeEngine.asciiMode.toggle()
   }
-  
-  /// 多选上屏
-  /// - Parameter num: 次选候选字的序号, 默认为2， 三选为3
-  func secondCandidateTextOnScreen(num: Int = 2) -> Bool {
-    if (num < 1) { return false}
-    let status = self.rimeEngine.status()
-    if status.isComposing {
-      let candidates = self.rimeEngine.suggestions
-      if candidates.isEmpty {
-        return false
-      }
-      if candidates.count >= num {
-        self.textDocumentProxy.insertText(candidates[num - 1].text)
-        self.rimeEngine.reset()
-        return true
-      }
-    }
-    return false
+
+  /// 三选上屏
+  func thirdlyCandidateTextOnScreen() -> Bool {
+    return self.selectCandidateIndex(index: 2)
+  }
+
+  /// 次选上屏
+  func secondCandidateTextOnScreen() -> Bool {
+    return self.selectCandidateIndex(index: 1)
   }
   
   
   /// 首选候选字上屏
   func candidateTextOnScreen() -> Bool {
-    let status = self.rimeEngine.status()
-    if status.isComposing {
-      let candidates = self.rimeEngine.suggestions
-      if candidates.isEmpty {
-        return false
-      }
-      self.inputTextPatch(candidates[0].text)
-      self.rimeEngine.reset()
-      return true
-    }
-    return false
+    return self.selectCandidateIndex(index: 0)
   }
 
   // 光标移动句首
@@ -392,9 +380,10 @@ extension HamsterKeyboardViewController {
   }
 
   /// 根据索引选择候选字
-  func selectCandidateIndex(index: Int) {
+  func selectCandidateIndex(index: Int) -> Bool {
     let handled = self.rimeEngine.selectCandidate(index: index)
     self.updateRimeEngine(handled)
+    return handled
   }
 
   /// 字符输入
@@ -482,8 +471,8 @@ extension HamsterKeyboardViewController {
       self.switchEnglishChinese()
     case .selectSecond:
       _ = self.secondCandidateTextOnScreen()
-    case .selectThird:
-      _ = secondCandidateTextOnScreen(num: 3)
+    case .thirdlySecond:
+      _ = self.thirdlyCandidateTextOnScreen()
     case .beginOfSentence:
       self.moveBeginOfSentence()
     case .endOfSentence:
