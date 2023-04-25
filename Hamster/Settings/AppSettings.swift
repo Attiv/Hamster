@@ -31,7 +31,7 @@ enum FunctionalInstructions: String, CaseIterable, Equatable, Identifiable {
       return "⇥"
     case .selectSecond:
       return "次"
-    case .selectThird:
+    case .thirdlySecond:
       return "三"
     default:
       return ""
