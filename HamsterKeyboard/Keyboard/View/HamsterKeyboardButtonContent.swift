@@ -37,7 +37,7 @@ struct HamsterKeyboardActionButtonContent: View {
     }
 
     var buttonExtendCharacter: [String: String] = [:]
-    for (fullKey, fullValue) in appSettings.keyboardUpAndDownSlideSymbol {
+    for (fullKey, fullValue) in appSettings.keyboardSwipeGestureSymbol {
       var key = fullKey
       let value = translateFunctionText(fullValue)
       let suffix = String(key.removeLast())
@@ -119,8 +119,9 @@ private extension HamsterKeyboardActionButtonContent {
       Text("西文")
 //        textView(for: "西文")
     } else {
-      Text("中文")
-//      textView(for: "中文")
+      Text(rimeEngine.currentSchema()?.schemaName ?? "中文")
+        .lineLimit(1)
+        .minimumScaleFactor(0.4)
     }
   }
 
