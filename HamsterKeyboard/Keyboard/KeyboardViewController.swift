@@ -98,6 +98,19 @@ open class HamsterKeyboardViewController: KeyboardInputViewController {
   override public func viewWillSetupKeyboard() {
     super.viewWillSetupKeyboard()
     self.log.debug("viewWillSetupKeyboard() begin")
+
+    // 初始键盘类型
+    if let keyboardType = self.textDocumentProxy.keyboardType {
+      switch keyboardType {
+      // 数字键盘
+      case .numberPad, .numbersAndPunctuation, .phonePad, .decimalPad, .asciiCapableNumberPad:
+        self.keyboardContext.keyboardType = .numeric
+      // 默认键盘
+      default:
+        break
+      }
+    }
+    
     let hamsterKeyboard = HamsterKeyboard(keyboardInputViewController: self)
       .environmentObject(self.rimeEngine)
       .environmentObject(self.appSettings)
@@ -164,19 +177,18 @@ open class HamsterKeyboardViewController: KeyboardInputViewController {
 
   private func setupRimeEngine() {
     do {
-//      TODO: AppGroup下SharedSupport目录共享
+//      注意：下面复用了AppGroup下SharedSupport目录共享，不需要在copy AppGroup下SharedSupport目录
 //      try RimeEngine.syncAppGroupSharedSupportDirectory(
 //        override: self.appSettings.rimeNeedOverrideUserDataDirectory)
-      Logger.shared.log.debug("rime syncAppGroupUserDataDirectory: \(self.appSettings.rimeNeedOverrideUserDataDirectory)")
+      Logger.shared.log.info("rime syncAppGroupUserDataDirectory: \(self.appSettings.rimeNeedOverrideUserDataDirectory)")
 
-      // 如果有写权限直接使用AppGroup下目录
       try RimeEngine.syncAppGroupUserDataDirectory(
         override: self.appSettings.rimeNeedOverrideUserDataDirectory)
     } catch {
       self.log.error("create rime directory error: \(error), \(error.localizedDescription)")
     }
 
-    // TODO: 使用AppGroup下的SharedSupport目录
+    // 注意：这里复用AppGroup下的SharedSupport目录
     let traits = self.rimeEngine.createTraits(
       sharedSupportDir: RimeEngine.appGroupSharedSupportDirectoryURL.path,
       userDataDir: RimeEngine.userDataDirectory.path
@@ -196,8 +208,10 @@ open class HamsterKeyboardViewController: KeyboardInputViewController {
     if self.appSettings.rimeNeedOverrideUserDataDirectory {
       self.appSettings.rimeNeedOverrideUserDataDirectory = false
     }
+    // session 必须在前面
     self.rimeEngine.createSession()
     Logger.shared.log.debug("rime session: \(self.rimeEngine.session)")
+
     self.changeRimeInputSchema()
     self.changeRimeColorSchema()
     self.rimeEngine.reset()
@@ -487,7 +501,6 @@ extension HamsterKeyboardViewController {
       // TODO: 颜色方案切换
       break
     case .switchLastInputSchema:
-      let currentInputSchema = (self.rimeEngine.currentSchema()?.schemaId) ?? ""
       if !self.appSettings.lastUseRimeInputSchema.isEmpty {
         let handled = self.rimeEngine.setSchema(self.appSettings.lastUseRimeInputSchema)
         Logger.shared.log.debug("switch last use input schema \(self.appSettings.lastUseRimeInputSchema), handled = \(handled)")
