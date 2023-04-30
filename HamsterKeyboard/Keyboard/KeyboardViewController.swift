@@ -96,7 +96,7 @@ open class HamsterKeyboardViewController: KeyboardInputViewController {
   }
 
   override public func viewWillSetupKeyboard() {
-    super.viewWillSetupKeyboard()
+//    super.viewWillSetupKeyboard()
     self.log.debug("viewWillSetupKeyboard() begin")
 
     // 初始键盘类型
@@ -110,7 +110,7 @@ open class HamsterKeyboardViewController: KeyboardInputViewController {
         break
       }
     }
-    
+
     let hamsterKeyboard = HamsterKeyboard(keyboardInputViewController: self)
       .environmentObject(self.rimeEngine)
       .environmentObject(self.appSettings)
@@ -151,28 +151,7 @@ open class HamsterKeyboardViewController: KeyboardInputViewController {
       .store(in: &self.cancellables)
 
     // 候选字最大数量
-    self.appSettings.$rimeMaxCandidateSize
-      .receive(on: RunLoop.main)
-      .sink { [weak self] rimeMaxCandidateSize in
-        guard let self = self else { return }
-        self.log.info("combine $rimeMaxCandidateSize: \(rimeMaxCandidateSize)")
-        self.rimeEngine.maxCandidateCount = rimeMaxCandidateSize
-      }
-      .store(in: &self.cancellables)
-
-    // 候选栏如果启用内嵌模式，则监听userInputKey的变化
-    if self.appSettings.enableInputEmbeddedMode {
-      self.rimeEngine.$userInputKey
-        .receive(on: DispatchQueue.main)
-        .sink { [weak self] userInputKey in
-          guard let self = self else { return }
-          self.log.debug("combine $userInputKey: \(userInputKey)")
-          self.textDocumentProxy.setMarkedText(
-            userInputKey, selectedRange: NSMakeRange(userInputKey.count, 0)
-          )
-        }
-        .store(in: &self.cancellables)
-    }
+    self.rimeEngine.maxCandidateCount = self.appSettings.rimeMaxCandidateSize
   }
 
   private func setupRimeEngine() {
@@ -188,23 +167,15 @@ open class HamsterKeyboardViewController: KeyboardInputViewController {
       self.log.error("create rime directory error: \(error), \(error.localizedDescription)")
     }
 
-    // 注意：这里复用AppGroup下的SharedSupport目录
-    let traits = self.rimeEngine.createTraits(
-      sharedSupportDir: RimeEngine.appGroupSharedSupportDirectoryURL.path,
-      userDataDir: RimeEngine.userDataDirectory.path
-    )
-
     // setupRime不能重复调用, 否则会触发panic
     // utilities.cc:365] Check failed: !IsGoogleLoggingInitialized() You called InitGoogleLogging() twice!
     // rimeEngine是ViewController的成员变量, 每次启动都会被初始化
     // 所以内部的是否首次启动标志不起作用, 这里在ViewController外部定义了全局变量, 用来标记是否首次启动.
     if isRimeFirstRun {
       isRimeFirstRun = false
-      self.rimeEngine.setupRime(traits)
+      self.rimeEngine.setupRime()
     }
-    self.rimeEngine.startRime(
-      nil, fullCheck: false
-    )
+    self.rimeEngine.initialize()
     if self.appSettings.rimeNeedOverrideUserDataDirectory {
       self.appSettings.rimeNeedOverrideUserDataDirectory = false
     }
@@ -216,6 +187,31 @@ open class HamsterKeyboardViewController: KeyboardInputViewController {
     self.changeRimeColorSchema()
     self.rimeEngine.reset()
     self.rimeEngine.maxCandidateCount = self.appSettings.rimeMaxCandidateSize
+
+    // 内嵌模式
+    if self.appSettings.enableInputEmbeddedMode {
+      self.rimeEngine.$userInputKey
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] inputKey in
+          guard let self = self else { return }
+
+          Logger.shared.log.debug("keyboardViewController enableInputEmbeddedMode")
+
+          // fix: 部分App(如 bilibili app 端的评论)上屏不会触发
+          if !self.rimeEngine.commitText.isEmpty {
+            self.textDocumentProxy.setMarkedText(self.rimeEngine.commitText, selectedRange: NSRange(location: self.rimeEngine.commitText.count, length: 0))
+            self.textDocumentProxy.unmarkText()
+            self.rimeEngine.commitText = ""
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.001) {
+              self.textDocumentProxy.setMarkedText(inputKey, selectedRange: NSRange(location: inputKey.count, length: 0))
+            }
+            return
+          }
+
+          self.textDocumentProxy.setMarkedText(inputKey, selectedRange: NSRange(location: inputKey.count, length: 0))
+        }
+        .store(in: &self.cancellables)
+    }
   }
 
   // MARK: - Text And Selection Change
@@ -261,7 +257,7 @@ open class HamsterKeyboardViewController: KeyboardInputViewController {
   }
 
   override open func deleteBackward() {
-    _ = self.inputRimeKeycode(keycode: XK_BackSpace)
+    _ = self.inputRimeKeyCode(keyCode: XK_BackSpace)
   }
 
   override open func setKeyboardType(_ type: KeyboardType) {
@@ -309,7 +305,7 @@ extension HamsterKeyboardViewController {
     var userInputKey = self.rimeEngine.userInputKey
     if !userInputKey.isEmpty {
       userInputKey.removeAll(where: { $0 == " " })
-      self.inputTextPatch(userInputKey)
+      self.textDocumentProxy.insertText(userInputKey)
     }
     self.rimeEngine.reset()
     //    情况3. 首选候选字上屏, 并开启英文输入
@@ -358,7 +354,7 @@ extension HamsterKeyboardViewController {
   // 候选字上一页
   func previousPageOfCandidates() {
     if self.rimeEngine.inputKeyCode(XK_Page_Up) {
-      self.rimeEngine.syncContext()
+      self.syncContext()
     } else {
       Logger.shared.log.warning("rime input pageup result error")
     }
@@ -367,7 +363,7 @@ extension HamsterKeyboardViewController {
   // 候选字下一页
   func nextPageOfCandidates() {
     if self.rimeEngine.inputKeyCode(XK_Page_Down) {
-      self.rimeEngine.syncContext()
+      self.syncContext()
     } else {
       Logger.shared.log.debug("rime input pageDown result error")
     }
@@ -385,7 +381,7 @@ extension HamsterKeyboardViewController {
     if name.isEmpty {
       return schema
     }
-    guard let colorSchema = self.rimeEngine.colorSchema(appSettings.rimeUseSquirrelSettings).first(where: { $0.schemaName == name })
+    guard let colorSchema = self.appSettings.rimeTotalColorSchemas.first(where: { $0.schemaName == name })
     else {
       return schema
     }
@@ -411,23 +407,23 @@ extension HamsterKeyboardViewController {
     var handled = false
     let keyUTF8 = key.utf8
     if keyUTF8.count == 1, let first = keyUTF8.first {
-      handled = self.inputRimeKeycode(keycode: Int32(first))
+      handled = self.inputRimeKeyCode(keyCode: Int32(first))
     }
 
     // 符号键直接上屏
     if !handled {
       // 符号顶码上屏
       _ = self.candidateTextOnScreen()
-      self.inputTextPatch(key)
+      self.textDocumentProxy.insertText(key)
     }
   }
 
   /// 转为RimeCode
-  func inputRimeKeycode(keycode: Int32, modifier: Int32 = 0) -> Bool {
-    var handled = self.rimeEngine.inputKeyCode(keycode, modifier: modifier)
+  func inputRimeKeyCode(keyCode: Int32, modifier: Int32 = 0) -> Bool {
+    var handled = self.rimeEngine.inputKeyCode(keyCode, modifier: modifier)
     if !handled {
       // 特殊功能键处理
-      switch keycode {
+      switch keyCode {
       case XK_Return:
         self.textDocumentProxy.insertText(.newline)
         handled = true
@@ -452,7 +448,11 @@ extension HamsterKeyboardViewController {
     // 唯一码直接上屏
     let commitText = self.rimeEngine.getCommitText()
     if !commitText.isEmpty {
-      self.inputTextPatch(commitText)
+      self.rimeEngine.commitText = commitText
+      // 非内嵌模式直接上屏
+      if !self.appSettings.enableInputEmbeddedMode {
+        self.textDocumentProxy.insertText(commitText)
+      }
     }
 
     // 查看输入法状态
@@ -465,8 +465,20 @@ extension HamsterKeyboardViewController {
     }
 
     if handled {
-      self.rimeEngine.syncContext()
+      self.syncContext()
     }
+  }
+
+  // 同步context: 主要是获取当前引擎提供的候选文字, 同时更新rime published属性 userInputKey
+  func syncContext() {
+    let context = self.rimeEngine.context()
+
+    if context.composition != nil {
+      self.rimeEngine.userInputKey = context.composition.preedit ?? ""
+    }
+
+    // 获取候选字
+    self.rimeEngine.suggestions = self.rimeEngine.candidateListLimit()
   }
 
   // TODO: 以#开头为功能
@@ -504,9 +516,10 @@ extension HamsterKeyboardViewController {
       if !self.appSettings.lastUseRimeInputSchema.isEmpty {
         let handled = self.rimeEngine.setSchema(self.appSettings.lastUseRimeInputSchema)
         Logger.shared.log.debug("switch last use input schema \(self.appSettings.lastUseRimeInputSchema), handled = \(handled)")
-        // 注意：这里lastUseRimeInputSchema的值会在rimeInputSchema的值的willSet时期变动。
-        // 所以不需要在交换两个值
-        self.appSettings.rimeInputSchema = self.appSettings.lastUseRimeInputSchema
+        // 交换两个值
+        let lastUseRimeInputSchema = self.appSettings.lastUseRimeInputSchema
+        self.appSettings.lastUseRimeInputSchema = self.appSettings.rimeInputSchema
+        self.appSettings.rimeInputSchema = lastUseRimeInputSchema
         self.rimeEngine.reset()
       }
     default:
@@ -516,20 +529,20 @@ extension HamsterKeyboardViewController {
     return true
   }
 
-  func inputTextPatch(_ text: String) {
-    if self.appSettings.enableInputEmbeddedMode {
-      guard let _ = self.textDocumentProxy.selectedText else {
-        self.textDocumentProxy.insertText(text)
-        return
-      }
-      // fix: 部分App候选文字内嵌模式下上屏异常
-      self.textDocumentProxy.setMarkedText(
-        text, selectedRange: NSRange(location: text.count, length: 0)
-      )
-      self.textDocumentProxy.unmarkText()
-    } else {
-      self.textDocumentProxy.insertText(text)
-    }
-  }
+//  func inputTextPatch(_ text: String) {
+//    if self.appSettings.enableInputEmbeddedMode {
+//      // fix: 部分App候选文字内嵌模式下上屏异常
+  ////      if self.textDocumentProxy.selectedText != nil {
+//      self.textDocumentProxy.setMarkedText("", selectedRange: NSRange(location: 0, length: 0))
+  ////      }
+  ////      self.textDocumentProxy.insertText(text)
+//      self.textDocumentProxy.setMarkedText(
+//        text, selectedRange: NSRange(location: text.count, length: 0)
+//      )
+  ////      self.textDocumentProxy.unmarkText()
+//    } else {
+//      self.textDocumentProxy.insertText(text)
+//    }
+//  }
 }
 #endif

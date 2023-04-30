@@ -15,6 +15,13 @@ struct HamsterKeyboard: View {
   var style: AutocompleteToolbarStyle
   var keyboardLayout: KeyboardLayout
   var candidateBarHeight: CGFloat
+  private let buttonExtendCharacter: [String: String]
+
+  @ObservedObject
+  private var rimeEngine: RimeEngine
+
+  @ObservedObject
+  private var appSettings: HamsterAppSettings
 
   // MARK: 自身状态变量
 
@@ -29,18 +36,14 @@ struct HamsterKeyboard: View {
   @EnvironmentObject
   private var keyboardContext: KeyboardContext
 
-  @EnvironmentObject
-  private var rimeEngine: RimeEngine
-
-  @EnvironmentObject
-  private var appSettings: HamsterAppSettings
-
   @Environment(\.openURL) var openURL
 
   init(keyboardInputViewController ivc: HamsterKeyboardViewController) {
     Logger.shared.log.debug("HamsterKeyboard init")
     weak var keyboardViewController = ivc
     self.ivc = keyboardViewController
+    self.rimeEngine = ivc.rimeEngine
+    self.appSettings = ivc.appSettings
     self.style = AutocompleteToolbarStyle(
       item: AutocompleteToolbarItemStyle(
         titleFont: .system(
@@ -70,6 +73,40 @@ struct HamsterKeyboard: View {
     Logger.shared.log.debug("keyboard total height \(height)")
 
     self._hamsterKeyboardSize = State(initialValue: CGSize(width: 0, height: height))
+
+    // 键盘扩展显示
+    var buttonExtendCharacter: [String: String] = [:]
+    let translateFunctionText = { (name: String) -> String in
+      if name.hasPrefix("#"), let slidFunction = FunctionalInstructions(rawValue: name) {
+        return slidFunction.text
+      }
+      return name
+    }
+    for (fullKey, fullValue) in ivc.appSettings.keyboardSwipeGestureSymbol {
+      var key = fullKey
+      let value = translateFunctionText(fullValue)
+      let suffix = String(key.removeLast())
+
+      // 上划
+      if suffix == KeyboardConstant.Character.SlideUp {
+        if let dictValue = buttonExtendCharacter[key] {
+          buttonExtendCharacter[key] = "\(value) \(dictValue)"
+        } else {
+          buttonExtendCharacter[key] = value
+        }
+        continue
+      }
+
+      // 下划
+      if suffix == KeyboardConstant.Character.SlideDown {
+        if let dictValue = buttonExtendCharacter[key] {
+          buttonExtendCharacter[key] = "\(dictValue) \(value)"
+        } else {
+          buttonExtendCharacter[key] = value
+        }
+      }
+    }
+    self.buttonExtendCharacter = buttonExtendCharacter
   }
 
   var hamsterColor: ColorSchema {
@@ -77,7 +114,7 @@ struct HamsterKeyboard: View {
   }
 
   var backgroundColor: Color {
-    return hamsterColor.backColor ?? Color.standardKeyboardBackground
+    return hamsterColor.backColor.bgrColor ?? Color.standardKeyboardBackground
   }
 
   // 全键盘展示候选字
@@ -105,7 +142,8 @@ struct HamsterKeyboard: View {
       if appSettings.keyboardStatus == .normal {
         AlphabetKeyboard(
           keyboardInputViewController: ivc ?? NextKeyboardController.shared as! HamsterKeyboardViewController,
-          candidateBarHeight: candidateBarHeight
+          candidateBarHeight: candidateBarHeight,
+          buttonExtendCharacter: buttonExtendCharacter
         )
         .frame(height: hamsterKeyboardSize.height)
       }
@@ -119,7 +157,7 @@ struct HamsterKeyboard: View {
       // 输入方案切换视图
       if appSettings.keyboardStatus == .switchInputSchema {
         switchInputSchemaView
-          .foregroundColor(hamsterColor.candidateTextColor ?? Color.standardButtonForeground(for: keyboardContext))
+          .foregroundColor(hamsterColor.candidateTextColor.bgrColor ?? Color.standardButtonForeground(for: keyboardContext))
           .frame(height: hamsterKeyboardSize.height)
       }
     }
@@ -145,7 +183,7 @@ struct SelectInputSchemaView: View {
   var schemas: [Schema]
 
   var backgroundColor: Color {
-    return hamsterColor.backColor ?? Color.standardKeyboardBackground
+    return hamsterColor.backColor.bgrColor ?? Color.standardKeyboardBackground
   }
 
   @EnvironmentObject var appSettings: HamsterAppSettings
@@ -170,7 +208,9 @@ struct SelectInputSchemaView: View {
             showDivider: true,
             userCheckbox: false,
             action: {
+              let inputSchema = appSettings.rimeInputSchema
               appSettings.rimeInputSchema = $0.schemaId
+              appSettings.lastUseRimeInputSchema = inputSchema
               let handled = rimeEngine.setSchema($0.schemaId)
               Logger.shared.log.debug("switch input schema: \($0.schemaId), handled: \(handled)")
               rimeEngine.reset()
@@ -180,6 +220,7 @@ struct SelectInputSchemaView: View {
         }
       )
       .frame(height: hamsterKeyboardSize.height)
+      .padding(.horizontal)
 
       // 收起按钮
       CandidateBarArrowButton(
