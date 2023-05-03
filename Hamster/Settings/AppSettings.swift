@@ -155,6 +155,9 @@ private enum HamsterAppSettingKeys: String {
 
   // x轴滑动灵敏度
   case xSwipeSensitivity = "keyboard.xSwipeSensitivity"
+    
+  case customFontName = ""
+  case customFontUrl = " "
 }
 
 public class HamsterAppSettings: ObservableObject {
@@ -196,6 +199,8 @@ public class HamsterAppSettings: ObservableObject {
       HamsterAppSettingKeys.enableInputEmbeddedMode.rawValue: false,
       HamsterAppSettingKeys.rimeUseSquirrelSettings.rawValue: true,
       HamsterAppSettingKeys.xSwipeSensitivity.rawValue: 20,
+      HamsterAppSettingKeys.customFontName.rawValue: "",
+      HamsterAppSettingKeys.customFontUrl.rawValue: "",
     ])
 
     self.isFirstLaunch = UserDefaults.hamsterSettingsDefault.bool(forKey: HamsterAppSettingKeys.appFirstLaunch.rawValue)
@@ -216,6 +221,8 @@ public class HamsterAppSettings: ObservableObject {
     self.rimeCandidateTitleFontSize = UserDefaults.hamsterSettingsDefault.integer(forKey: HamsterAppSettingKeys.rimeCandidateTitleFontSize.rawValue)
     self.rimeCandidateCommentFontSize = UserDefaults.hamsterSettingsDefault.integer(forKey: HamsterAppSettingKeys.rimeCandidateCommentFontSize.rawValue)
     self.xSwipeSensitivity = UserDefaults.hamsterSettingsDefault.integer(forKey: HamsterAppSettingKeys.xSwipeSensitivity.rawValue)
+    self.customFontName = UserDefaults.hamsterSettingsDefault.string(forKey: HamsterAppSettingKeys.customFontName.rawValue) ?? ""
+      self.customFontUrl = UserDefaults.hamsterSettingsDefault.string(forKey: HamsterAppSettingKeys.customFontUrl.rawValue) ?? ""
 
     // 对数组类型且为Struct值需要特殊处理
     if let data = UserDefaults.hamsterSettingsDefault.data(forKey: HamsterAppSettingKeys.rimeTotalColorSchemas.rawValue) {
@@ -602,6 +609,24 @@ public class HamsterAppSettings: ObservableObject {
         xSwipeSensitivity, forKey: HamsterAppSettingKeys.xSwipeSensitivity.rawValue)
     }
   }
+    
+    @Published
+    var customFontName: String {
+      didSet {
+        Logger.shared.log.info(["AppSettings, customFontName": customFontName])
+        UserDefaults.hamsterSettingsDefault.set(
+            customFontName, forKey: HamsterAppSettingKeys.customFontName.rawValue)
+      }
+    }
+    
+    @Published
+    var customFontUrl: String {
+      didSet {
+        Logger.shared.log.info(["AppSettings, customFontUrl": customFontUrl])
+        UserDefaults.hamsterSettingsDefault.set(
+            customFontUrl, forKey: HamsterAppSettingKeys.customFontUrl.rawValue)
+      }
+    }
 }
 
 public extension UserDefaults {

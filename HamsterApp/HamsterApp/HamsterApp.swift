@@ -15,6 +15,7 @@ import ZIPFoundation
 struct HamsterApp: App {
   var appSettings = HamsterAppSettings()
   var rimeEngine = RimeEngine()
+  
 
   @State var launchScreenState = true
   @State var showError: Bool = false
@@ -48,6 +49,9 @@ struct HamsterApp: App {
       .hud(isShow: $isLoading, message: $loadingMessage)
       .environmentObject(appSettings)
       .environmentObject(rimeEngine)
+      .onReceive(NotificationCenter.default.publisher(for: .changeFont)) { _ in
+          changeCustomFont(FontName: appSettings.customFontName, FontSize: 17)
+      }
     }
   }
 
@@ -155,5 +159,29 @@ struct HamsterApp: App {
         }
       }
     }
+  }
+
+
+  func changeCustomFont(FontName fontName: String, FontSize fontSize: CGFloat) {
+    // 首先获取要使用的自定义字体
+    guard let customFont = UIFont(name: fontName, size: fontSize) else {
+      fatalError("Could not load custom font.")
+    }
+
+    // 创建一个新的UIFontDescriptor，使用我们的自定义字体
+    guard let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .body)
+      .withFamily(customFont.familyName)
+      .withSymbolicTraits(customFont.fontDescriptor.symbolicTraits)
+    else {
+      fatalError("fontDescriptor error")
+    }
+
+    // 创建一个新的UIFont对象，使用UIFontDescriptor和字体大小
+    let newFont = UIFont(descriptor: fontDescriptor, size: fontSize)
+
+    // 用新的字体替换现有的字体
+    UILabel.appearance().font = newFont
+    UIButton.appearance().titleLabel?.font = newFont
+    UITextView.appearance().font = newFont
   }
 }

@@ -16,6 +16,7 @@ enum DestinationType {
   case inputKeyFunction
   case swipeGestureMapping
   case about
+  case font
   case none
 
   func isNone() -> Bool {
@@ -54,6 +55,8 @@ struct CellDestinationRoute: CellDestination {
       SwipeGestureActionView()
     case .about:
       AboutView()
+    case .font:
+      FontView()
     default:
       EmptyView()
     }
@@ -85,7 +88,7 @@ struct CellView: View {
   init(cellDestinationRoute: CellDestinationRoute, cellViewModel: CellViewModel) {
     self.cellDestinationRoute = cellDestinationRoute
     self.cellViewModel = cellViewModel
-    self._toggleState = State(initialValue: cellViewModel.toggleValue)
+    _toggleState = State(initialValue: cellViewModel.toggleValue)
   }
 
   var imageView: some View {
@@ -269,6 +272,13 @@ func createCells(cellWidth: CGFloat, cellHeight: CGFloat, appSettings: HamsterAp
       cellName: "关于",
       imageName: "info.circle",
       destinationType: .about
+    ),
+    CellViewModel(
+      cellWidth: cellWidth,
+      cellHeight: cellHeight,
+      cellName: "字体",
+      imageName: "info.circle",
+      destinationType: .font
     ),
   ]
 }

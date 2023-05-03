@@ -16,6 +16,7 @@ enum AppConstants {
   static let rimeSharedSupportPathName = "SharedSupport"
   static let rimeUserPathName = "Rime"
   static let inputSchemaZipFile = "SharedSupport.zip"
+  static let fontsPathName = "Fonts"
 
   // 注意: 此值需要与info.plist中的参数保持一致
   static let appURL = "hamster://vitta.fuxiao.app.hamster"

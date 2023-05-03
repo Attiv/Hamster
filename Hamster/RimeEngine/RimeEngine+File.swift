@@ -135,4 +135,11 @@ extension RimeEngine {
     let src = appGroupUserDataDirectoryURL
     try fm.copyItem(at: src, to: dst)
   }
+    
+    // AppGroup共享下: 字体Fonts目录
+    static var appGroupSharedSupportFontsURL: URL {
+      shareURL.appendingPathComponent(
+        AppConstants.fontsPathName, isDirectory: true)
+    }
+
 }

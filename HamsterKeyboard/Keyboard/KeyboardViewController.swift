@@ -25,6 +25,13 @@ open class HamsterKeyboardViewController: KeyboardInputViewController {
 
   override public func viewDidLoad() {
     self.log.info("viewDidLoad() begin")
+      if (!appSettings.customFontUrl.isEmpty) {
+          registerFont()
+          self.log.info(appSettings.customFontName)
+          if (!appSettings.customFontName.isEmpty) {
+              UIFont.swizzleMethods()
+          }
+      }
     // 注意初始化的顺序
 
     // TODO: 动态设置 local
@@ -520,6 +527,25 @@ extension HamsterKeyboardViewController {
     } else {
       self.textDocumentProxy.insertText(text)
     }
+  }
+    
+  func registerFont() {
+      let url: URL = RimeEngine.appGroupSharedSupportFontsURL.appendingPathComponent(
+        appSettings.customFontUrl)
+      guard let fontDataProvider = CGDataProvider(url: url as CFURL) else { return }
+      guard let font = CGFont(fontDataProvider) else { return }
+
+      var error: Unmanaged<CFError>?
+      if !CTFontManagerRegisterGraphicsFont(font, &error) {
+          // 已经注册过的也会走这个方法
+        if let error = error {
+          print("Error registering font: \(error.takeRetainedValue().localizedDescription)")
+        }
+      } else {
+        let fontName = font.postScriptName as! String
+        // TODO: 需要再加一个变量处理这个
+        appSettings.customFontName = fontName ?? ""
+      }
   }
 }
 #endif

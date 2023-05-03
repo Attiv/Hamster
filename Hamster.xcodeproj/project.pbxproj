@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		AE43FE0929F37E17004210EA /* SpaceDragHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE43FE0829F37E17004210EA /* SpaceDragHandler.swift */; };
+		AE6053C02A02178F006660E0 /* Notify+Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE6053BF2A02178F006660E0 /* Notify+Name.swift */; };
+		AE6053C12A02178F006660E0 /* Notify+Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE6053BF2A02178F006660E0 /* Notify+Name.swift */; };
+		AE6053C32A027DC4006660E0 /* Font+Custom.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE6053C22A027DC4006660E0 /* Font+Custom.swift */; };
+		AE6053C42A027DC4006660E0 /* Font+Custom.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE6053C22A027DC4006660E0 /* Font+Custom.swift */; };
+		AEE2B8462A0129E70033E13C /* FontView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE2B8452A0129E70033E13C /* FontView.swift */; };
 		C0010B0029B8ED8000CE4869 /* ColorSchemaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0010AFF29B8ED8000CE4869 /* ColorSchemaView.swift */; };
 		C0010B0229B9040B00CE4869 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0010B0129B9040B00CE4869 /* AboutView.swift */; };
 		C00699FB29CE9A2300087879 /* AppSettings+Permission.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00699FA29CE9A2300087879 /* AppSettings+Permission.swift */; };
@@ -197,6 +202,9 @@
 
 /* Begin PBXFileReference section */
 		AE43FE0829F37E17004210EA /* SpaceDragHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpaceDragHandler.swift; sourceTree = "<group>"; };
+		AE6053BF2A02178F006660E0 /* Notify+Name.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notify+Name.swift"; sourceTree = "<group>"; };
+		AE6053C22A027DC4006660E0 /* Font+Custom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Font+Custom.swift"; sourceTree = "<group>"; };
+		AEE2B8452A0129E70033E13C /* FontView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontView.swift; sourceTree = "<group>"; };
 		C000CA9D296EA72600EC5323 /* KeyboardInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardInputViewController.swift; sourceTree = "<group>"; };
 		C0010AFF29B8ED8000CE4869 /* ColorSchemaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorSchemaView.swift; sourceTree = "<group>"; };
 		C0010B0129B9040B00CE4869 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
@@ -498,6 +506,8 @@
 				C04FA8AD299A65AC00F8CC32 /* AppSettings.swift */,
 				C00699FA29CE9A2300087879 /* AppSettings+Permission.swift */,
 				C00699FD29CE9C7E00087879 /* AppSettings+Bundle.swift */,
+				AE6053BF2A02178F006660E0 /* Notify+Name.swift */,
+				AE6053C22A027DC4006660E0 /* Font+Custom.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -682,6 +692,7 @@
 				C0341D5029C89B6300016C68 /* InputEditorView.swift */,
 				C037B61229CBDADC00B1BBDC /* SwipeGestureActionView.swift */,
 				C0AB7C1D29DC016A00F8D01E /* EditorView.swift */,
+				AEE2B8452A0129E70033E13C /* FontView.swift */,
 			);
 			path = SubView;
 			sourceTree = "<group>";
@@ -1022,6 +1033,8 @@
 				C0DA63F929F7B87500F91C74 /* BlackView.swift in Sources */,
 				C0532D1A29C4A353001A8BE6 /* DotsActivityView.swift in Sources */,
 				C07C1A2129CD6B6D00FD0572 /* Logger.swift in Sources */,
+				AE6053C02A02178F006660E0 /* Notify+Name.swift in Sources */,
+				AEE2B8462A0129E70033E13C /* FontView.swift in Sources */,
 				C01CF63929F655C80039AFAA /* HamsteriCloudView.swift in Sources */,
 				C0341C6F29C83B2A00016C68 /* LongButton.swift in Sources */,
 				C0519E0329F926CC00513008 /* Checkbox.swift in Sources */,
@@ -1058,6 +1071,7 @@
 				C0458A7C29B1338700262E69 /* ContentView.swift in Sources */,
 				C0A301F429C999F600C29E35 /* TextFieldStyle.swift in Sources */,
 				C0010B0029B8ED8000CE4869 /* ColorSchemaView.swift in Sources */,
+				AE6053C32A027DC4006660E0 /* Font+Custom.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1102,9 +1116,11 @@
 				C0C9F01629CF4316004B2C33 /* HamsterKeyboardAppearance.swift in Sources */,
 				C0C9F01929CF4316004B2C33 /* HamsterKeyboardBehavior.swift in Sources */,
 				C0C9F01A29CF4316004B2C33 /* HamsterActionCalloutContext.swift in Sources */,
+				AE6053C42A027DC4006660E0 /* Font+Custom.swift in Sources */,
 				C0C9F01B29CF4316004B2C33 /* KeyboardType+Button.swift in Sources */,
 				C016994D29FBCC9A0047B49E /* DotView.swift in Sources */,
 				C0C9F01C29CF4316004B2C33 /* KeyboardContext+KeyboardType.swift in Sources */,
+				AE6053C12A02178F006660E0 /* Notify+Name.swift in Sources */,
 				C0C9F01D29CF4316004B2C33 /* KeyboardFeedbackHandler.swift in Sources */,
 				C0C9F01F29CF4316004B2C33 /* iPadKeyboardLayoutProvider.swift in Sources */,
 				C0D672BE29F1FC0B002D0439 /* ExpandCandidatesView.swift in Sources */,
